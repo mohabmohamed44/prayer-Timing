@@ -217,22 +217,22 @@ export default function MainContent() {
             <Prayer
               name="الظهر"
               time={timings.Dhuhr}
-              image="/src/assets/img.jpeg"
+              image="https://kharchoufa.com/en/wp-content/uploads/2024/05/deepening_connection_through_prayer-1.jpg"
             />
             <Prayer
               name="العصر"
               time={timings.Asr}
-              image="/src/assets/img1.jpeg"
+              image="https://www.islamic-relief.org.uk/wp-content/smush-webp/2022/11/salah-hero-1.jpg.webp"
             />
             <Prayer
               name="المغرب"
               time={timings.Sunset}
-              image="/src/assets/img2.jpeg"
+              image="https://images.squarespace-cdn.com/content/v1/5c9e26a35df2930001c476e3/1555292187320-0B5V0EHTM5MY7E27POKZ/b156ba2538815c72a32d7d238f922eea.jpg?format=1500w"
             />
             <Prayer
               name="العشاء"
               time={timings.Isha}
-              image="/src/assets/img4.jpeg"
+              image="https://peacemagazine.com.ng/wp-content/uploads/2024/07/man-praying-in-a-masjid.jpg"
             />
           </Stack>
 
