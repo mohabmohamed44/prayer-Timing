@@ -1,5 +1,6 @@
 import Grid from "@mui/material/Grid2";
 import Divider from "@mui/material/Divider";
+import {Typography} from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Prayer from "../Prayer/Prayer";
 import InputLabel from "@mui/material/InputLabel";
@@ -10,7 +11,7 @@ import Select from "@mui/material/Select";
 import Box from "@mui/material/Box";
 import axios from "axios";
 import moment from "moment";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import "moment/dist/locale/ar-dz";
 moment.locale("ar");
 export default function MainContent() {
@@ -56,47 +57,29 @@ export default function MainContent() {
     },
   ];
 
-  const prayersArray = [
+  const prayersArray = useMemo(() => [
     { key: "Fajr", displayName: "الفجر" },
     { key: "Dhuhr", displayName: "الظهر" },
     { key: "Asr", displayName: "العصر" },
     { key: "Sunset", displayName: "المغرب" },
     { key: "Isha", displayName: "العشاء" },
-  ];
-  const getTimings = async () => {
+  ], []);
+  const getTimings = useCallback(async () => {
     console.log("calling the api");
     const response = await axios.get(
       `https://api.aladhan.com/v1/timingsByCity?country=SA&city=${selectedCity.apiName}`
     );
     setTimings(response.data.data.timings);
-  };
+  }, [selectedCity]);
+  
   useEffect(() => {
     getTimings();
-  }, [selectedCity]);
+  }, [getTimings]);
 
-  useEffect(() => {
-    let interval = setInterval(() => {
-      console.log("calling timer");
-      setupCountdownTimer();
-    }, 1000);
-
-    const t = moment();
-    setToday(t.format("MMM Do YYYY | h:mm"));
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [timings]);
-
-  // const data = await axios.get(
-  // 	"https://api.aladhan.com/v1/timingsByCity?country=SA&city=Riyadh"
-  // );
-
-  const setupCountdownTimer = () => {
+  const setupCountdownTimer = useCallback(() => {
     const momentNow = moment();
-
     let prayerIndex = 2;
-
+    
     if (
       momentNow.isAfter(moment(timings["Fajr"], "hh:mm")) &&
       momentNow.isBefore(moment(timings["Dhuhr"], "hh:mm"))
@@ -153,7 +136,42 @@ export default function MainContent() {
       durationRemainingTime.minutes(),
       durationRemainingTime.seconds()
     );
-  };
+  }, [timings, prayersArray]);
+
+  useEffect(() => {
+    let interval = setInterval(() => {
+      console.log("calling timer");
+      setupCountdownTimer();
+    }, 1000);
+
+    const t = moment();
+    setToday(t.format("MMM Do YYYY | h:mm"));
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [setupCountdownTimer]);
+
+  // const data = await axios.get(
+  // 	"https://api.aladhan.com/v1/timingsByCity?country=SA&city=Riyadh"
+  // );
+
+  
+
+  useEffect(() => {
+    let interval = setInterval(() => {
+      console.log("calling timer");
+      setupCountdownTimer();
+    }, 1000);
+
+    const t = moment();
+    setToday(t.format("MMM Do YYYY | h:mm"));
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [setupCountdownTimer]);
+
   const handleCityChange = (event) => {
     const cityObject = avilableCities.find((city) => {
       return city.apiName == event.target.value;
@@ -165,37 +183,58 @@ export default function MainContent() {
   return (
     <>
       {/* TOP ROW */}
-      <Container maxWidth="lg">
+      <Container maxWidth="xl">
         <Box
           sx={{
             minHeight: "100vh",
             display: "flex",
             flexDirection: "column",
-            py: 4,
+            py: 6,
           }}
         >
-          {/* TOP ROW */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ textAlign: "center" }}>
-                <h2>{today}</h2>
-                <h1>{selectedCity.displayName}</h1>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Box sx={{ textAlign: "center" }}>
-                <h2>
-                  متبقي حتى صلاة {prayersArray[nextPrayerIndex].displayName}
-                </h2>
-                <h1>{remainingTime}</h1>
-              </Box>
+          {/* IDENTIFICATION */}
+          <Grid container spacing={4} justifyContent="center">
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              <Typography variant="h4" component="h2" color="white">
+                {today}
+                <Typography
+                  component="span"
+                  variant="h5"
+                  sx={{ ml: 2 }}
+                  color="white"
+                >
+                  {selectedCity.displayName}
+                </Typography>
+              </Typography>
             </Grid>
           </Grid>
 
+          {/* COUNTDOWN */}
+          <Box
+            sx={{
+              my: 4,
+              p: 2,
+              bgcolor: "rgba(0, 0, 0, 0.4)",
+              borderRadius: 2,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h5" color="white" gutterBottom>
+              متبقي حتى صلاة {prayersArray[nextPrayerIndex].displayName}
+            </Typography>
+            <Typography variant="h3" color="#00e5ff" component="div">
+              {remainingTime}
+            </Typography>
+          </Box>
+          
           <Divider
             sx={{
-              borderColor: "white",
+              borderColor: "rgba(255,255,255,0.1)",
               opacity: 0.1,
               my: 4,
             }}
